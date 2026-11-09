@@ -1,0 +1,74 @@
+{
+  "baseUrl": "http://127.0.0.1:8080",
+  "viewport": { "width": 1440, "height": 900 },
+  "lang": "en",
+  "voice": { "engine": "say", "name": "Samantha", "rate": 180 },
+  "output": "out/demo.mp4",
+  "maxMb": 8,
+  "scenes": [
+    {
+      "name": "intro",
+      "say": "Here is a thirty second tour of Taskboard, a tiny demo app.",
+      "caps": ["Taskboard: a 30-second tour"],
+      "actions": [
+        { "card": { "title": "Taskboard in 30 seconds", "subtitle": "Recorded from one scenes file by the explainer-video skill" } }
+      ]
+    },
+    {
+      "name": "board",
+      "say": "The board shows today's tasks in three columns: to do, in progress, and done.",
+      "caps": ["Today's tasks in three columns", "To do, in progress, done"],
+      "actions": [
+        { "goto": "/", "waitFor": "Today" },
+        { "glide": { "selector": "h1" } },
+        { "hover": "To do" },
+        { "hover": "In progress" },
+        { "hover": { "text": "Done", "selector": "h2" } }
+      ]
+    },
+    {
+      "name": "add",
+      "say": "Adding a task takes one click. Type a title, pick a priority, and save.",
+      "caps": ["New task: type a title, pick a priority", "Save, and it lands in To do"],
+      "actions": [
+        { "click": "New task", "waitFor": "What needs doing?" },
+        { "type": "Record the demo video", "into": "Title" },
+        { "click": "High" },
+        { "still": "dialog" },
+        { "click": "Add task", "waitFor": "Task added" },
+        { "hover": "Record the demo video" }
+      ]
+    },
+    {
+      "name": "done",
+      "say": "When it's finished, mark it done, and it moves to the done column.",
+      "caps": ["Mark done: the card moves to Done"],
+      "actions": [
+        { "zoom": 1.6 },
+        { "click": { "text": "Mark done", "within": "Record the demo video" }, "waitFor": "Moved to Done" },
+        { "hover": { "text": "Record the demo video", "within": { "selector": ".col", "text": "Done" } } },
+        { "wait": 600 },
+        { "zoom": 1 },
+        { "still": "board" }
+      ]
+    },
+    {
+      "name": "summary",
+      "say": "Further down, a weekly summary counts what you finished.",
+      "caps": ["The weekly summary counts finished work"],
+      "actions": [
+        { "scroll": "Weekly summary" },
+        { "hover": "finished this week" },
+        { "still": "summary" }
+      ]
+    },
+    {
+      "name": "outro",
+      "say": "That's the whole tour. Every move in this video came from one scenes file.",
+      "caps": ["Every move came from one scenes file"],
+      "actions": [
+        { "card": { "title": "Made with explainer-video", "subtitle": "Scenes file → narrated, subtitled MP4 + HTML report" } }
+      ]
+    }
+  ]
+}

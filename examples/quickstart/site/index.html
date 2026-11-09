@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Taskboard</title>
+<style>
+  :root { --bg: #f5f6f8; --card: #fff; --fg: #12171d; --muted: #66707c; --line: #e2e6eb; --accent: #2563eb; --done: #15803d; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif; }
+  header { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; gap: 28px; padding: 14px 40px; background: rgba(255,255,255,.92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+  header b { font-size: 19px; letter-spacing: -.01em; }
+  header b::before { content: ""; display: inline-block; width: 12px; height: 12px; border-radius: 4px; background: var(--accent); margin-right: 9px; }
+  header nav { display: flex; gap: 20px; }
+  header nav a { color: var(--muted); text-decoration: none; font-weight: 500; }
+  header nav a:hover { color: var(--fg); }
+  header .spacer { flex: 1; }
+  button { font: inherit; cursor: pointer; }
+  .primary { background: var(--accent); color: #fff; border: 0; border-radius: 10px; padding: 9px 16px; font-weight: 600; }
+  .primary:hover { filter: brightness(1.08); }
+  main { max-width: 1240px; margin: 0 auto; padding: 32px 40px 80px; }
+  h1 { font-size: 34px; margin: 0 0 4px; letter-spacing: -.02em; }
+  .sub { color: var(--muted); margin: 0 0 26px; }
+  .board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .col { background: #eceff3; border-radius: 14px; padding: 14px; min-height: 300px; }
+  .col h2 { font-size: 14px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 2px 4px 12px; display: flex; justify-content: space-between; }
+  .task { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; transition: background .2s, box-shadow .2s; animation: pop .35s ease; }
+  .task:hover { box-shadow: 0 4px 16px rgba(18,23,29,.08); }
+  .task .title { flex: 1; font-weight: 500; }
+  .chip { font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: #eef2f7; color: var(--muted); }
+  .chip.high { background: #fde8e8; color: #b42318; } .chip.medium { background: #fff3dc; color: #915b00; }
+  .task button { border: 1px solid var(--line); background: #fff; border-radius: 8px; padding: 4px 10px; font-size: 13px; color: var(--muted); }
+  .task button:hover { border-color: var(--done); color: var(--done); }
+  .col.done .task .title { text-decoration: line-through; color: var(--muted); }
+  .col.done .task button { display: none; }
+  @keyframes pop { from { transform: scale(.96); opacity: 0; } to { transform: none; opacity: 1; } }
+  section.summary { margin-top: 56px; }
+  section.summary h2 { font-size: 26px; margin: 0 0 16px; letter-spacing: -.01em; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .stat { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 20px; }
+  .stat b { display: block; font-size: 40px; letter-spacing: -.02em; }
+  .stat span { color: var(--muted); }
+  .notes { margin-top: 40px; color: var(--muted); max-width: 720px; }
+  .notes p { margin: 0 0 14px; }
+  dialog { border: 0; border-radius: 16px; padding: 24px; width: 440px; box-shadow: 0 24px 60px rgba(18,23,29,.25); }
+  dialog::backdrop { background: rgba(18,23,29,.35); }
+  dialog h3 { margin: 0 0 16px; font-size: 20px; }
+  label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+  input[type=text] { width: 100%; font: inherit; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; outline: none; }
+  input[type=text]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,.15); }
+  .seg { display: flex; gap: 8px; margin: 16px 0 22px; }
+  .seg button { flex: 1; border: 1px solid var(--line); background: #fff; border-radius: 10px; padding: 8px; }
+  .seg button[aria-pressed=true] { border-color: var(--accent); background: #eaf1ff; color: var(--accent); font-weight: 600; }
+  .actions { display: flex; justify-content: flex-end; gap: 10px; }
+  .ghost { border: 0; background: none; color: var(--muted); padding: 9px 12px; }
+  .toast { position: fixed; top: 76px; right: 40px; background: #12171d; color: #fff; padding: 10px 16px; border-radius: 10px; font-weight: 500; opacity: 0; transform: translateY(-8px); transition: .25s; }
+  .toast.on { opacity: 1; transform: none; }
+</style>
+</head>
+<body>
+<header>
+  <b>Taskboard</b>
+  <nav><a href="#board">Board</a><a href="#summary">Summary</a></nav>
+  <span class="spacer"></span>
+  <button class="primary" id="new">New task</button>
+</header>
+<main>
+  <h1 id="board">Today</h1>
+  <p class="sub">Three columns, one click to move a task along.</p>
+  <div class="board">
+    <div class="col" data-col="todo"><h2>To do <span></span></h2></div>
+    <div class="col" data-col="doing"><h2>In progress <span></span></h2></div>
+    <div class="col done" data-col="done"><h2>Done <span></span></h2></div>
+  </div>
+  <section class="summary" id="summary">
+    <h2>Weekly summary</h2>
+    <div class="stats">
+      <div class="stat"><b id="s-done">0</b><span>finished this week</span></div>
+      <div class="stat"><b id="s-open">0</b><span>still open</span></div>
+      <div class="stat"><b>4 days</b><span>streak</span></div>
+    </div>
+    <div class="notes">
+      <p>This page is a static demo for the explainer-video skill. It has no server code and stores nothing: reload it and the board starts over.</p>
+      <p>It exists so the quickstart example has something to click: a dialog with a text field, buttons that move cards, a sticky header and a section further down to scroll to.</p>
+    </div>
+  </section>
+</main>
+<dialog id="dlg">
+  <form method="dialog" id="form">
+    <h3>New task</h3>
+    <label for="title">Title</label>
+    <input type="text" id="title" placeholder="What needs doing?" autocomplete="off">
+    <div class="seg" role="group" aria-label="Priority">
+      <button type="button" data-p="low" aria-pressed="false">Low</button>
+      <button type="button" data-p="medium" aria-pressed="true">Medium</button>
+      <button type="button" data-p="high" aria-pressed="false">High</button>
+    </div>
+    <div class="actions"><button type="button" class="ghost" id="cancel">Cancel</button><button class="primary" id="add">Add task</button></div>
+  </form>
+</dialog>
+<div class="toast" id="toast"></div>
+<script>
+  const tasks = [
+    { title: 'Reply to design review', p: 'medium', col: 'todo' },
+    { title: 'Update onboarding copy', p: 'low', col: 'todo' },
+    { title: 'Fix login redirect', p: 'high', col: 'doing' },
+    { title: 'Write release notes', p: 'medium', col: 'doing' },
+    { title: 'Plan the sprint', p: 'low', col: 'done' },
+  ];
+  const $ = (s) => document.querySelector(s);
+  function render() {
+    for (const col of document.querySelectorAll('.col')) {
+      col.querySelectorAll('.task').forEach((t) => t.remove());
+      const mine = tasks.filter((t) => t.col === col.dataset.col);
+      col.querySelector('h2 span').textContent = mine.length;
+      for (const t of mine) {
+        const el = document.createElement('div');
+        el.className = 'task';
+        el.innerHTML = `<span class="title"></span><span class="chip ${t.p}">${t.p}</span><button type="button">Mark done</button>`;
+        el.querySelector('.title').textContent = t.title;
+        el.querySelector('button').onclick = () => { t.col = 'done'; render(); toast('Moved to Done'); };
+        col.append(el);
+      }
+    }
+    $('#s-done').textContent = tasks.filter((t) => t.col === 'done').length;
+    $('#s-open').textContent = tasks.filter((t) => t.col !== 'done').length;
+  }
+  let timer;
+  function toast(text) { const t = $('#toast'); t.textContent = text; t.classList.add('on'); clearTimeout(timer); timer = setTimeout(() => t.classList.remove('on'), 2200); }
+  let priority = 'medium';
+  $('#new').onclick = () => { $('#title').value = ''; $('#dlg').showModal(); };
+  $('#cancel').onclick = () => $('#dlg').close();
+  document.querySelectorAll('.seg button').forEach((b) => b.onclick = () => {
+    priority = b.dataset.p;
+    document.querySelectorAll('.seg button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+  });
+  $('#form').addEventListener('submit', (e) => {
+    const title = $('#title').value.trim();
+    if (!title) { e.preventDefault(); $('#title').focus(); return; }
+    tasks.unshift({ title, p: priority, col: 'todo' });
+    render(); toast('Task added');
+  });
+  render();
+</script>
+</body>
+</html>

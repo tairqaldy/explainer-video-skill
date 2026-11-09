@@ -1,0 +1,8 @@
+# generated videos, stills, reports
+out/
+**/out/
+# local secrets never belong here
+.env
+.env.*
+.DS_Store
+node_modules/

@@ -1,0 +1,36 @@
+{
+  "title": "Taskboard: add a task and finish it",
+  "subtitle": "What the quickstart example records: a 30-second narrated walkthrough of a tiny static app, built from `scenes.json`.",
+  "meta": ["explainer-video quickstart"],
+  "badge": { "text": "Example", "tone": "info" },
+  "output": "out/report.html",
+  "video": { "src": "out/demo.mp4", "chapters": true },
+  "sections": [
+    {
+      "heading": "What the video shows",
+      "md": "- The board with three columns: **To do**, **In progress**, **Done**.\n- A new task added through the dialog, typed character by character.\n- The task marked done, with the camera zoomed in on the cursor.\n- The weekly summary further down the page."
+    },
+    {
+      "heading": "Screenshots",
+      "stills": [
+        { "src": "out/stills/dialog.jpg", "caption": "The **New task** dialog, filled in." },
+        { "src": "out/stills/board.jpg", "caption": "The new task in the **Done** column." },
+        { "src": "out/stills/summary.jpg", "caption": "The weekly summary counts it." }
+      ]
+    },
+    {
+      "heading": "How it was made",
+      "checks": [
+        "Voice: macOS `say`, offline",
+        "Subtitles burned in by `encode.swift`",
+        "Audio muxed by `mux.swift`",
+        "No npm packages, no ffmpeg"
+      ]
+    },
+    {
+      "heading": "Try it on your app",
+      "tone": "info",
+      "md": "Copy `scenes.json`, point `baseUrl` at your app and rewrite the scenes. Or ask Claude: *make an explainer video of the settings page*."
+    }
+  ]
+}
