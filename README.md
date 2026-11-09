@@ -11,6 +11,8 @@ records, checks the frames and hands you the video.
 
 [![Freedom CQA demo video, 49 s, narrated](showcase/demo-poster.jpg)](showcase/demo.mp4)
 
+https://freedom-cqa.vercel.app/ - тут демка на сайте
+
 The demo of **Freedom CQA**, built in 24 hours by team **YaTebyaMognu** for the Freedom Broker case at NU Datathon
 2026 (Data Challenge'26, NU DataSci club, Nazarbayev University). It was recorded with the pipeline this skill grew
 out of: the scripted cursor, the zoom camera and the subtitles come from the same code; the voice there is the team's
