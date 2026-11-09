@@ -186,3 +186,7 @@ report.json ─▶ report.mjs ─▶ report.html (video, chapters, stills embedd
 ## Credits
 
 Built by Tair Kaldybayev for team YaTebyaMognu's Freedom CQA demo, then generalised into a skill.
+
+## License
+
+[MIT](LICENSE)
